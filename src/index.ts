@@ -1,6 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 
+import videosRoutes from './routes/video-route';
+
 // initialize configuration
 dotenv.config();
 
@@ -9,6 +11,8 @@ dotenv.config();
 const port = process.env.SERVER_PORT;
 
 const app = express();
+
+app.use('/video', videosRoutes);
 
 // define a route handler for the default home page
 app.get( "/", ( req, res ) => {
