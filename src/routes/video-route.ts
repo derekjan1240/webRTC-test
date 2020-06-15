@@ -8,6 +8,10 @@ videosRouter.get('/', async (req: any, res: any) => {
     res.send('video route test ok!');
 })
 
+videosRouter.get('/p2p/test', async (req: any, res: any) => {
+    res.sendFile(path.resolve("./src/test/index.html"));
+});
+
 videosRouter.get('/:videoId', async (req: any, res: any) => {
     try {
         const filePath = path.join(__dirname, `../videos/${req.params.videoId}.mp4`);

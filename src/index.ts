@@ -1,26 +1,24 @@
-import express from "express";
+import app from "./App";
+import socketIO  from "socket.io";
 import dotenv from "dotenv";
-
-import videosRoutes from './routes/video-route';
-
 // initialize configuration
 dotenv.config();
 
 // port is now available to the Node.js runtime
 // as if it were an environment variable
 const port = process.env.SERVER_PORT;
-
-const app = express();
-
-app.use('/video', videosRoutes);
-
-// define a route handler for the default home page
-app.get( "/", ( req, res ) => {
-    res.send( "Hello world!" );
-} );
-
-// start the Express server
-app.listen( port, () => {
+const server = app.listen( port, () => {
     // tslint:disable-next-line:no-console
-    console.log( `server started at http://localhost:${ port }` );
+    console.log( `server started at ${ port }` );
 } );
+
+// Socket setup
+const io = socketIO.listen(server);
+
+io.on('connection', (socket) => {
+    console.log('made socket connection', socket.id);
+    socket.emit('news', { hello: 'world' });
+    socket.on('my other event', (data) => {
+        console.log(data);
+    });
+});
