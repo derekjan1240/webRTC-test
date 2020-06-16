@@ -17,8 +17,18 @@ const io = socketIO.listen(server);
 
 io.on('connection', (socket) => {
     console.log('made socket connection', socket.id);
-    socket.emit('news', { hello: 'world' });
-    socket.on('my other event', (data) => {
-        console.log(data);
+ 
+    socket.on('sdp', (data) => {
+        "use strict";
+        // console.log(data);
+        console.log('handle sdp!')
+        socket.broadcast.emit('msg', data);
+    });
+
+    socket.on('candidate', (data) => {
+        "use strict";
+        // console.log(data);
+        console.log('handle candidate!')
+        socket.broadcast.emit('msg', data);
     });
 });

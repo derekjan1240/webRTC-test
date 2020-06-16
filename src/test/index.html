@@ -4,20 +4,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebRTC Test</title>
+    <link rel="shortcut icon" href="https://i.pinimg.com/originals/5a/dc/89/5adc89f4a0752dfec5c2f9ba625bfac5.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js" type="application/javascript"></script>
 </head>
 
 <body>
-    <h1>Hello world!</h1>
+    <div id="Container">
+        <div id="Intro-wrap">
+            <h1>WebRTC Test</h1>
+            <div style="width: 100%;">
+                <img id="Call-Button" src="https://i.pinimg.com/originals/5a/dc/89/5adc89f4a0752dfec5c2f9ba625bfac5.png" alt="QQ">
+            </div>
+            <!-- <button id="Call-Button">Call</button> -->
+        </div>
+        <video id="Remote-View" autoplay></video>
+        <video id="Self-View" autoplay></video>
+    </div>
 </body>
 
 </html>
 
 <script>
     const socket = io.connect('http://127.0.0.1:8080');
-    socket.on('news', (data) => {
-        console.log(data);
-        socket.emit('my other event', { my: 'data' });
+    const configuration = {
+        iceServers: [
+            { urls: "stun:23.21.150.121" },
+            { urls: "stun:stun.l.google.com:19302" }
+        ]
+    };
+
+    const call = document.querySelector('#Call-Button');
+    const remoteView = document.querySelector('#Remote-View');
+    const selfView = document.querySelector('#Self-View');
+    const introWrap = document.querySelector('#Intro-wrap');
+    
+    let pc;
+
+    call.addEventListener('click', () => {
+        console.log('webrtc start');
+        start(true);
+    });
+
+    function start(isCaller) {
+        pc = new RTCPeerConnection(configuration);
+
+        // send any ice candidates to the other peer
+        pc.onicecandidate = function (evt) {
+            console.log('emit candidate');
+            socket.emit('candidate', { "candidate": evt.candidate });
+        };
+        // once remote stream arrives, show it in the remote video element
+        pc.ontrack = function (evt) {
+            console.log("add remote stream");
+            console.log("evt:", evt);
+            introWrap.classList.add("hidden");
+            remoteView.srcObject = evt.streams[0];
+            console.log('evt.streams: ', evt.streams);
+        };
+
+        // get the local stream, show it in the local video element and send it
+        navigator.mediaDevices.getUserMedia({ "audio": true, "video": true }).then((stream) => {
+            console.log("start streaming");
+            console.log(stream);
+            introWrap.classList.add("hidden");
+            selfView.srcObject = stream;
+
+            pc.addStream(stream);
+
+            if (isCaller) {
+                pc.createOffer().then((desc) => gotDescription(desc));
+                console.log('emit sdp 1');
+            }
+            else {
+                pc.createAnswer().then((desc) => gotDescription(desc));
+                console.log('emit sdp 2');
+            }
+
+            function gotDescription(desc) {
+                pc.setLocalDescription(desc);
+                socket.emit('sdp', { "sdp": desc });
+            }
+        }
+        ).catch(function (err) {
+            // 取得失敗
+            console.log(err);
+        });;
+    }
+
+
+    socket.on('msg', (data) => {
+        console.log('server msg', data);
+        if (!pc)
+            start(false);
+        if (data.sdp)
+            pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        else if (data.candidate)
+            pc.addIceCandidate(new RTCIceCandidate(data.candidate));
     });
 </script>
+
+<style>
+    html,
+    body {
+        margin: 0;
+        height: 100%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 25px;
+        background: #ebf1f8;
+    }
+
+    #Container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+    }
+
+    #Remote-View {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+    }
+
+    #Self-View {
+        width: 30vw;
+        height: 30vh;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+
+    #Intro-wrap {
+        position: absolute;
+        z-index: 2;
+        width: 40%;
+        top: 20%;
+        right: 30%;
+        padding: 25px;
+        text-align: center;
+        background: antiquewhite;
+        border-radius: 0 0 2px 2px;
+    }
+
+    #Call-Button {
+        width: 25%;
+        border-radius: 50%;
+    }
+
+    .hidden {
+        display: none;
+    }
+</style>

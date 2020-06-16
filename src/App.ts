@@ -1,5 +1,6 @@
 import express from "express";
 import * as bodyParser from "body-parser";
+import path from 'path';
 import videosRoutes from './routes/video-route';
 
 class App {
@@ -20,10 +21,13 @@ class App {
   private routerSetup() {
     const router: express.Router = express.Router()
     // placeholder route handler
-    router.get('/', (req: express.Request, res: express.Response) => {
+    router.get('/', async (req: express.Request, res: express.Response) => {
       res.json({
         message: 'Hello World!'
       });
+    });
+    router.get('/WebRTC', async (req: express.Request, res: express.Response) => {
+      res.sendFile(path.resolve("./src/test/index.html"));
     });
     this.app.use('/', router);
     this.app.use('/video', videosRoutes);
