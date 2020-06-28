@@ -22,14 +22,14 @@ io.on('connection', (socket) => {
         "use strict";
         // console.log(data);
         console.log('handle sdp!')
-        socket.broadcast.emit('msg', data);
+        socket.broadcast.emit('connectMsg', data);
     });
 
     socket.on('candidate', (data) => {
         "use strict";
         // console.log(data);
         console.log('handle candidate!')
-        socket.broadcast.emit('msg', data);
+        socket.broadcast.emit('connectMsg', data);
     });
 
     // gameRoom

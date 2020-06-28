@@ -60,6 +60,10 @@
     const userName = document.querySelector('#Input-Name');
     const roomId = document.querySelector('#Input-Room-Id');
     const joinRoomButton = document.querySelector('#Join-button');
+    const call = document.querySelector('#Call-Button');
+    const remoteView = document.querySelector('#Remote-View');
+    const selfView = document.querySelector('#Self-View');
+    const introWrap = document.querySelector('#Intro-wrap');
 
     joinRoomButton.addEventListener('click', () => {
         console.log(`Find room ${roomId.value}`);
@@ -99,6 +103,25 @@
         document.querySelector('#Room-Info').classList.remove('d-none');
         document.querySelector('#Input-Room-Name').value = roomName;
         document.querySelector('#Input-Room-People-Display').value = `${count}/2`;
+
+        // Set event
+        if (count === 2) {
+            call.addEventListener('click', () => {
+                console.log('webrtc start');
+                start(true);
+            });
+            Swal.fire({
+                icon: 'success',
+                title: `對方已在線上點擊貓貓頭像後便可開始視訊😺`,
+                text: '喵 ~',
+            });
+        } else {
+            Swal.fire({
+                icon: 'success',
+                title: `歡迎加入 👉 ${roomName} 房間`,
+                text: '房間滿 2 人後便可以開始視訊!',
+            });
+        }
     }
 
     // Socket Event
@@ -132,11 +155,6 @@
 
     socket.on('welcomeRoom', (data) => {
         roomInfoSet(data.room, data.roomPeoples.length + 1);
-        Swal.fire({
-            icon: 'success',
-            title: `歡迎加入 👉 ${data.room}`,
-            text: '房間滿兩人後便可以開始視訊!',
-        });
     });
 
     // Some one join the room
@@ -155,17 +173,7 @@
         ]
     };
 
-    const call = document.querySelector('#Call-Button');
-    const remoteView = document.querySelector('#Remote-View');
-    const selfView = document.querySelector('#Self-View');
-    const introWrap = document.querySelector('#Intro-wrap');
-    
     let pc;
-
-    call.addEventListener('click', () => {
-        console.log('webrtc start');
-        start(true);
-    });
 
     function start(isCaller) {
         pc = new RTCPeerConnection(configuration);
@@ -213,9 +221,8 @@
         });;
     }
 
-
-    socket.on('msg', (data) => {
-        console.log('server msg', data);
+    socket.on('connectMsg', (data) => {
+        console.log('server connect msg', data);
         if (!pc)
             start(false);
         if (data.sdp)
