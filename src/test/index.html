@@ -31,6 +31,16 @@
                     <button class="btn btn-primary" type="button" id="Join-button">Join</button>
                 </div>
             </div>
+            <div id="Room-Info" class="input-group my-3 d-none">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">房間資訊</span>
+                </div>
+                <input type="text" class="form-control" id="Input-Room-Name" readonly>
+                <input type="text" class="form-control" id="Input-Room-People-Display" readonly>
+                <div class="input-group-append">
+                    <span class="input-group-text">人</span>
+                </div>
+            </div>
         </div>
         <video id="Remote-View" autoplay></video>
         <video id="Self-View" autoplay></video>
@@ -85,6 +95,12 @@
         joinRoomButton.disabled = false;
     }
 
+    function roomInfoSet(roomName, count) {
+        document.querySelector('#Room-Info').classList.remove('d-none');
+        document.querySelector('#Input-Room-Name').value = roomName;
+        document.querySelector('#Input-Room-People-Display').value = `${count}/2`;
+    }
+
     // Socket Event
     socket.on('isRoomExist', (data) => {
         console.log(`Find result:`, data);
@@ -96,6 +112,7 @@
                 userName: data.user,
             });
         } else {
+            abledCreateRoom()
             Swal.fire({
                 icon: 'error',
                 title: data.msg,
@@ -113,9 +130,18 @@
         });
     });
 
+    socket.on('welcomeRoom', (data) => {
+        roomInfoSet(data.room, data.roomPeoples.length + 1);
+        Swal.fire({
+            icon: 'success',
+            title: `歡迎加入 👉 ${data.room}`,
+            text: '房間滿兩人後便可以開始視訊!',
+        });
+    });
+
     // Some one join the room
     socket.on('userJoinRoom', (data) => {
-        console.log('room broadcast:', data)
+        console.log('room broadcast:', data);
     });
 
 
@@ -204,7 +230,7 @@
     body {
         margin: 0;
         height: 100%;
-        font-family: Arial, Helvetica, sans-serif;
+        font-family: '微軟正黑體', Arial, Helvetica, sans-serif;
         font-size: 25px;
         background: #ebf1f8;
     }

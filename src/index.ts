@@ -54,14 +54,20 @@ io.on('connection', (socket) => {
                 console.log(clients.length, data.roomName);
                 socket.join(data.roomName);
 
-                // test room msg
-                socket.in(data.roomName).broadcast.emit('test', { msg: 'room msg test', clientData: data });
-
-
+                // Emit join room msg to room
+                socket.emit('welcomeRoom', { msg: 'Welcome room!', room: data.roomName, roomPeoples: clients });
+                socket.in(data.roomName).broadcast.emit('userJoinRoom', { msg: 'userJoinRoom', clientData: data });
             } else {
                 // The room is full
                 socket.emit('isRoomExist', { result: false, msg: '房間已滿!' });
             }
+        });
+    });
+
+    socket.on('getRoomPersons', (data) => {
+        io.of('/').in(data.roomName).clients((error: any, clients: string | any[]) => {
+            if (error) throw error;
+            return clients;
         });
     });
 });
