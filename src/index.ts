@@ -19,17 +19,15 @@ io.on('connection', (socket) => {
     console.log('made socket connection', socket.id);
 
     socket.on('sdp', (data) => {
-        "use strict";
-        // console.log(data);
+        console.log(data);
         console.log('handle sdp!')
-        socket.broadcast.emit('connectMsg', data);
+        socket.to(data.roomName).emit('connectMsg', data);
     });
 
     socket.on('candidate', (data) => {
-        "use strict";
-        // console.log(data);
+        console.log(data);
         console.log('handle candidate!')
-        socket.broadcast.emit('connectMsg', data);
+        socket.to(data.roomName).emit('connectMsg', data);
     });
 
     // gameRoom

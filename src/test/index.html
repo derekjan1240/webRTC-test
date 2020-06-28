@@ -181,7 +181,7 @@
         // send any ice candidates to the other peer
         pc.onicecandidate = function (evt) {
             console.log('emit candidate');
-            socket.emit('candidate', { "candidate": evt.candidate });
+            socket.emit('candidate', { candidate: evt.candidate, roomName: document.querySelector('#Input-Room-Name').value });
         };
         // once remote stream arrives, show it in the remote video element
         pc.ontrack = function (evt) {
@@ -212,7 +212,7 @@
 
             function gotDescription(desc) {
                 pc.setLocalDescription(desc);
-                socket.emit('sdp', { "sdp": desc });
+                socket.emit('sdp', { sdp: desc, roomName: document.querySelector('#Input-Room-Name').value });
             }
         }
         ).catch(function (err) {
