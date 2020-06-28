@@ -53,7 +53,6 @@
     // const socket = io.connect('http://127.0.0.1:8080');
     const socket = io({autoConnect: false});
 
-
     /**
      * Streaming room setting
     */
@@ -160,6 +159,11 @@
     // Some one join the room
     socket.on('userJoinRoom', (data) => {
         console.log('room broadcast:', data);
+        Swal.fire({
+            icon: 'info',
+            title: `${data.clientData.userName} 加入 👉 ${data.clientData.roomName} 房間`,
+            text: '等待對方開始視訊!',
+        });
     });
 
 
