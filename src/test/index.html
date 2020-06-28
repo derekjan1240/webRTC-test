@@ -20,7 +20,7 @@
 <body>
     <div id="Container">
         <div id="Intro-wrap">
-            <h3>WebRTC Home</h3>
+            <h3 id="Title">WebRTC Test</h3>
             <div style="width: 100%;">
                 <img id="Call-Button" class="my-3" src="https://i.pinimg.com/originals/5a/dc/89/5adc89f4a0752dfec5c2f9ba625bfac5.png" alt="QQ">
             </div>
@@ -52,6 +52,12 @@
 <script>
     // const socket = io.connect('http://127.0.0.1:8080');
     const socket = io({autoConnect: false});
+
+    Swal.fire({
+        icon: 'info',
+        title: 'DEMO 操作說明',
+        text: '建立房間，等待對方加入後房間後開始視訊!',
+    });
 
     /**
      * Streaming room setting
@@ -278,9 +284,53 @@
         border-radius: 0 0 2px 2px;
     }
 
+    @media (max-width: 480px) {
+        #Title {
+            font-size: 1.5rem;
+        }
+
+        #Intro-wrap {
+            width: 100%;
+            right: auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        #Title {
+            font-size: 1.5rem;
+        }
+
+        #Intro-wrap {
+            width: 80%;
+            right: 10%;
+        }
+    }
+
     #Call-Button {
         width: 25%;
         border-radius: 50%;
+    }
+
+    img:hover {
+        /* Start the shake animation and make the animation last for 0.5 seconds */
+        animation: shake 0.5s;
+
+        /* When the animation is finished, start again */
+        animation-iteration-count: infinite;
+    }
+
+    @keyframes shake {
+        0% { transform: translate(1px, 1px) rotate(0deg); }
+        10% { transform: translate(-1px, -2px) rotate(-1deg); }
+        20% { transform: translate(-3px, 0px) rotate(1deg); }
+        30% { transform: translate(3px, 2px) rotate(0deg); }
+        40% { transform: translate(1px, -1px) rotate(1deg); }
+        50% { transform: translate(-1px, 2px) rotate(-1deg); }
+        60% { transform: translate(-3px, 1px) rotate(0deg); }
+        70% { transform: translate(3px, 1px) rotate(-1deg); }
+        80% { transform: translate(-1px, -1px) rotate(1deg); }
+        90% { transform: translate(1px, 2px) rotate(0deg); }
+        100% { transform: translate(1px, -2px) rotate(-1deg); }
     }
 
     .hidden {
